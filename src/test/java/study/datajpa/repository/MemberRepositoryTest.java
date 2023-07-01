@@ -7,6 +7,8 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.entity.Member;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 @Transactional
@@ -19,16 +21,70 @@ class MemberRepositoryTest {
 
     @Test
     void testMember(){
+
         Member member=new Member("memeberA");
         Member findMember = memberRepository.save(member);
 
-        Member member1 = memberRepository.findById(member.getId()).get();
+        assertThat(findMember.getId()).isEqualTo(member.getId());
+        assertThat(findMember).isEqualTo(member);
+    }
 
 
-        assertThat(findMember.getId()).isEqualTo(member1.getId());
-        assertThat(findMember).isEqualTo(member1);
+    @Test
+    void basicCRUD(){
+        Member member1=new Member("member1");
+        Member member2=new Member("member2");
 
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        Member findMember1 = memberRepository.findById(member1.getId()).get();
+        Member findMember2 = memberRepository.findById(member2.getId()).get();
+
+        assertThat(findMember1).isEqualTo(member1);
+        assertThat(findMember2).isEqualTo(member2);
+
+
+        //리스트검증
+
+        int size = memberRepository.findAll().size();
+
+        assertThat(size).isEqualTo(2);
+
+        long count = memberRepository.count();
+
+        assertThat(count).isEqualTo(2);
+
+
+        memberRepository.delete(member1);
+        memberRepository.delete(member2);
+
+
+
+        long deleteCount = memberRepository.count();
+
+        assertThat(deleteCount).isEqualTo(0);
 
     }
+
+    @Test
+    void findUsernameAndAgeGreaterThen(){
+        Member membe1 = new Member("a", 20);
+        Member membe2 = new Member("b", 30);
+        memberRepository.save(membe1);
+        memberRepository.save(membe2);
+
+        List<Member> a = memberRepository.findByUsernameAndAgeGreaterThan("a", 15);
+
+        assertThat(a.get(0).getUsername()).isEqualTo("a");
+        assertThat(a.get(0).getAge()).isEqualTo(20);
+        assertThat(a.size()).isEqualTo(1);
+
+    }
+@Test
+    void allTest(){
+
+        memberRepository.findTop3By();
+}
 
 }
